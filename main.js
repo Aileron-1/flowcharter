@@ -1,85 +1,97 @@
-/*function drawText(ctx, x, y, text, fontStyle) {
-    ctx.font = fontStyle.size + "px " + fontStyle.font;
-    ctx.textAlign = "left";
-    ctx.fillText(text, x, y);
-}*/
+function drawArrows(arrows) {
+    // call again next time we can draw
+    requestAnimationFrame(drawArrows);
+    // clear canvas
+    ctx.clearRect(0, 0, cvWidth, cvHeight);
+    // draw everything
+    everyObject.forEach(function(o) {
+    ctx.fillStyle = o[4];
+    ctx.fillRect(o[0], o[1], o[2], o[3]);
+    });
+    // 
+    ctx.fillStyle = '#000';
+    ctx.fillText('click to add random rects', 10, 10);
+}
 
-function createActivity(canvas, x, y, dataObject) {
-    var activity = dataObject;
+
+function createActivity (x, y, dataObject, dataID) {
+    var activity = {}//dataObject;
+    activity.id = dataID
     activity.data = dataObject;
     activity.attributeTextOrder = ["stage","substage","workflow","platform","assistant","genre","description"];
-    activity.attributeLabels = ["Stage","Substage","Workflow","Platform","Assistant","Genre","Description"];
-    activity.x = x;
-    activity.y = y;
-    activity.box = {
-        "w": 300, 
-        "h": 0, // should be responsive? possibly unused
-    }
-    activity.bodyLineHeight = canvas.bodyFontStyle.size+2
-    activity.bottomPadding = 20;
-    activity.height = function () {
-        var lineAmount = this.attributeTextOrder.length+1;
-        var height = canvas.titleFontStyle.size+(this.bodyLineHeight*1.5)+this.bodyLineHeight*lineAmount + this.bottomPadding;
-        return height;
-    }
+    activity.attributeLabels = ["Stage","Substage","Workflow","Platform","Assistant","Genre","Description"];  // 
+    activity.bodyLineHeight = canvas.bodyFontStyle.size+2;
+    /*activity.bottomPadding = 20;
+    activity.rightPadding = 20;*/
+    
+    //activity.box = // This is the element to be created
+                // create it in here? seems to be fine and also saves space
+    activity.drawChildArrows = function (ctx) {
+        for (var i = 0; i < this.data.children.length; i++) {
+            //var childTop = 
+            console.log(this.box.position().top)
+            drawArrowTo(ctx, 100+(this.id*10), 200, 0,0);
+        }
+    };
     
     return activity;
 }
 
-function drawActivity(canvas, x, y, activity) {
-    var ctx = canvas.ctx;
+function activityToDiv (activity) {
     var data = activity.data;
-    
-    // Draw box 
-    ctx.rect(x, y, activity.box.w, activity.height());
-    ctx.stroke();
-    
-    // Draw title
-    var s = data.title;
-    ctx.font = canvas.titleFontStyle.size+"px "+canvas.titleFontStyle.font;
-    ctx.textAlign = "left";
-    ctx.textBaseline = "top";
-    ctx.fillText(s, x+18, y+18);
-    //var lineOffset = canvas.titleFontStyle.size;
-    
-    // Draw attributes
+    var parentElement = activity.data;
     var attributeTextOrder = activity.attributeTextOrder;
-    var attributeLabels = activity.attributeLabels;
-    var bodyLineHeight = activity.bodyLineHeight;
-    var outputText = "";
+    
+    // Create element
+    $('<div class="data"></div>').appendTo('.chart');
+    var elementData = $('.data:last');
+    elementData.css({top: 0, left: 0});
+    
+    // Create box
+    $('<div class="data-box"></div>').appendTo('.data:last');
+    var elementBox = $('.data-box:last');
+    
+    // Append title
+    var textToAppend = data.title;
+    $('<div class="data-box-title">'+textToAppend+'</div>').appendTo(elementBox);
+    
+    // Append attributes 
     for (var i = 0; i < attributeTextOrder.length; i++) {
-        outputText = attributeLabels[i]+": "+data[attributeTextOrder[i]];
-        ctx.font = canvas.bodyFontStyle.size+"px "+canvas.bodyFontStyle.font;
-        ctx.textAlign = "left";
-        ctx.textBaseline = "top";
-        wrapText(ctx, outputText, x+18, y+canvas.titleFontStyle.size+(bodyLineHeight*1.5)+bodyLineHeight*i, activity.box.w-20, bodyLineHeight);  //outputText, x+18, y+canvas.titleFontStyle.size+(bodyLineHeight)*(i+2), activity.box.w, bodyLineHeight);
+        var textToAppend = data[attributeTextOrder[i]];
+        $('<div class="data-box-attribute">'+textToAppend+'</div>').appendTo(elementBox);
     }
     
-}
-
-function wrapText(context, text, x, y, maxWidth, lineHeight) {  // Adapted from https://www.html5canvastutorials.com/tutorials/html5-canvas-wrap-text-tutorial/
-    var words = text.split(' ');
-    var line = '';
+    // Create div for children 
+    $('<div class="data-children"></div>').appendTo('.data:last');
     
-    for(var n = 0; n < words.length; n++) {
-        var testLine = line + words[n] + ' ';
-        var metrics = context.measureText(testLine);
-        var testWidth = metrics.width;
-        if (testWidth > maxWidth && n > 0) {
-            context.fillText(line, x, y);
-            line = words[n] + ' ';
-            y += lineHeight;
-        }
-        else {
-            line = testLine;
-        }
-    }
-    context.fillText(line, x, y);
+    return elementData;
 }
 
+function moveElementTo (element, x, y, duration) {
+    var wOffset = element.width()/2;
+    $(element).animate({'top':y+'px', 'left':(x-wOffset)+'px'}, duration, function(){
+    });
+}
 
-// Create "levels based on the data (into a more displayable structure)
-// OR sort each data by shared parents. Create divs based on these "levels" and populate the divs with the respective data. Afterward, draw arrows for each. If it works.
+function createArrow(owner, target) {
+    var arrow = {};
+    arrow.owner = owner;
+    arrow.target = target;
+    
+    return arrow;
+}
+
+function drawArrowTo (ctx, x1, y1, x2, y2) {
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+}
+
+// Convert the raw data into 2 maps: data and relationships. 
+// Data contains data such as it's unique ID, title, description and the position of the element. 
+// Relationships contain the "arrows", using the unique ID of each element as the pointer 
+// Then, place the 
 
 // Prep canvas
 var c = document.getElementById("flowchart");
@@ -99,7 +111,9 @@ var canvas = {
         font: "Calibri"
     },
 };
-
+                                var bottomPadding = 100;
+                                //var topPadding = 100;
+                                
 // Initialize children
 var workingData = inputData();
 for (var i = 0; i < workingData.length; i++) {
@@ -120,10 +134,11 @@ var toPushNext = [];
 var pushed = [];
 var activities = [[]];
 var activity;
+var count = 0;
 for (var u = 0; u < workingData.length; u++) {
     for (var i = 0; i < toPush.length; i++) {
         activity = workingData[toPush[i]];
-        activities[u].push(createActivity(canvas, 0, 0, activity));
+        activities[u].push(createActivity( 0, 0, activity, count));
         // Take its children, but not if we've already took it
         for (var o = 0; o < activity.children.length; o++) {
             if (pushed.includes(activity.children[o]) == false) {
@@ -131,55 +146,56 @@ for (var u = 0; u < workingData.length; u++) {
                 pushed.push(activity.children[o]);
             }
         }
+        count++;
     }
     if (toPushNext.length != 0) { activities.push([]); }
     toPush = toPushNext;
     toPushNext = [];
 
 }
-        
-                                var bottomMargins = 100;
-                                var topPadding = 100;
+console.log(activities)
 
-
-
-// Get heights of each activity and return sum, and change canvas height.
-var totalHeight = 0+topPadding;
+// Create the activities
+var offsetHeight = 0;
+var midpoint = $('.chart').width()/2; // ****************** midpoint of parent
 for (var i = 0; i < activities.length; i++) {
     var level = activities[i]; 
     for (var o = 0; o < level.length; o++) {
         var activity = activities[i][o];
-        totalHeight += activity.height();
-    }
-}
-c.height = totalHeight;
-
-// Loop would be from here
-// Position the activities
-
-// Draw the activities
-for (var i = 0; i < activities.length; i++) {
-    var level = activities[i]; 
-    for (var o = 0; o < level.length; o++) {
-        var activity = activities[i][o];
-        var midOffset_w = activity.box.w/2;
-        var midOffset_h = activity.height()/2;
-        activity.x = canvas.origin.x+350*o - midOffset_w - (350-(350/level.length)); 
-        activity.y = canvas.origin.y+(activity.height()+bottomMargins)*i + topPadding - midOffset_h;
         
-        var activity = activities[i][o];
-        drawActivity(canvas, activity.x, activity.y, activity);
+        
+        
+        var e = activityToDiv(activity);
+        activities[i][o].box = e;
+        
+        
+        
+        // gen midpoint of parent (middle of canvas if no parent)
+        // have something for 2 and more parents 
+        if (activities[i][o].data.parent.length == 1) {
+            var p = activities[i][o].data.parent[0];
+            //midpoint = p.box.outerWidth()/2;
+        }
+        var orderHorizontalOffset = o*(e.outerWidth()+20);
+        var middingOffset = ((level.length-1)*(e.outerWidth()+20))/2;
+        moveElementTo(e, midpoint+orderHorizontalOffset-middingOffset,offsetHeight+20,250);
+        
         
     }
+        
+    offsetHeight += e.outerHeight()+20;
 }
 
-// Draw arrows, 1st pass
+// Create arrows, 1st pass
 
 
 
+// Update canvas height
+c.height = offsetHeight+bottomPadding;
 
 
-
+// Animation loop
+//drawArrows();
 
 
 
@@ -471,6 +487,18 @@ function inputData() {
             "description":"Remove all product B-cam shots, remove verbal mentions, remove advertising segments. Check slate, slate timing. Create textless segments at the end of the sequence, without bars and tones, with at least 2 seconds gap between textless clips, and with handles until next/previous cut.",
             "parent":[23]
         } //25th
+        , // test
+        {
+            "stage":"TEST 3",
+            "substage":"mastering",
+            "workflow":"hsquared",
+            "platform":["Premiere"],
+            "assistant":true,
+            "genre":["tv"],
+            "title":"International Mastering",
+            "description":"Remove all product B-cam shots, remove verbal mentions, remove advertising segments. Check slate, slate timing. Create textless segments at the end of the sequence, without bars and tones, with at least 2 seconds gap between textless clips, and with handles until next/previous cut.",
+            "parent":[25]
+        }
     ];
     return data;
 }

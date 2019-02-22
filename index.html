@@ -3,22 +3,86 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Flowchart</title>
+	<title>Flowchart2</title>
 	<!--<link rel="stylesheet" href="style.css">-->
-	
+    <script
+    src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+    
 	<style>
-	    #chart-holder {
-	        display: flex;
-	        flex-direction: row;
-	        justify-content: space-evenly;
+	    #filter-bar-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-evenly;
 	    }
+	    #filter-bar {
+	        min-width: 1000px;
+	        min-height: 30px;
+            background-color: hsla(220,100%,50%,0.1);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+	    }
+	    
+	    #filter-bar p,button {
+	        margin:5px;
+	    }
+	    
+        #chart-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-evenly;
+        }
+        .chart {
+            position: relative;
+        }
+        .data {
+            position: absolute;
+            background-color: hsla(100,100%,50%,0.1);
+        }
+        .data-box {
+            position: relative;
+            width: 300px;
+            border-style: solid;
+            border-width: 1px;
+            padding: 10px 20px 10px 20px;
+            background-color: hsla(0,100%,50%,0.1);
+        }
+        .data-box-title {
+            font-family: "Calibri";
+            font-weight: bold;
+            font-size: 18;
+        }
+        .data-box-attribute {
+            font-family: "Calibri";
+            font-size: 16;
+        }
+        .data-children {
+            background-color: hsla(60,100%,50%,0.1);
+        }
+        #flowchart {
+            background-color: hsla(280,100%,50%,0.1);
+        }
 	</style>
 </head>
 
 <body>
-    <h1>Flowchart</h1>
-    <div id="chart-holder">
-    	<canvas id="flowchart" width="1000" height="700" style="border:1px solid #000000;"></canvas>
+    <h1>Flowchart 2</h1>
+    <div id="filter-bar-container">
+        <div id="filter-bar">
+            <p>Filter menu here: </p>
+            <button>Test</button>
+            <button>Button</button>
+            <button>Button</button>
+            <button>Button</button>
+        </div>
+    </div>
+    <div id="chart-container">
+        <div class="chart">
+        	<canvas id="flowchart" width="1000" height="900"></canvas>
+        </div>
     </div>
     
     <script type="text/JavaScript" src="main.js"></script>
