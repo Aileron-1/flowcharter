@@ -1,4 +1,4 @@
-function drawArrows(arrows) {
+/*function drawArrows(arrows) {
     // call again next time we can draw
     requestAnimationFrame(drawArrows);
     // clear canvas
@@ -11,7 +11,7 @@ function drawArrows(arrows) {
     // 
     ctx.fillStyle = '#000';
     ctx.fillText('click to add random rects', 10, 10);
-}
+}*/
 
 
 function createActivity (x, y, dataObject, dataID) {
@@ -37,13 +37,13 @@ function createActivity (x, y, dataObject, dataID) {
     return activity;
 }
 
-function activityToDiv (activity) {
+function activityToDiv (activity, chart) {
     var data = activity.data;
     var parentElement = activity.data;
     var attributeTextOrder = activity.attributeTextOrder;
     
     // Create element
-    $('<div class="data"></div>').appendTo('.chart');
+    $('<div class="data"></div>').appendTo(chart);
     var elementData = $('.data:last');
     elementData.css({top: 0, left: 0});
     
@@ -160,13 +160,16 @@ var offsetHeight = 0;
 var midpoint = $('.chart').width()/2; // ****************** midpoint of parent
 for (var i = 0; i < activities.length; i++) {
     var level = activities[i]; 
+    
+    $('.chart').append('<div class="chart-level"></div>')
     for (var o = 0; o < level.length; o++) {
         var activity = activities[i][o];
+        var levelElement = $('.chart-level:last');
         
         
-        
-        var e = activityToDiv(activity);
+        var e = activityToDiv(activity, levelElement);
         activities[i][o].box = e;
+        
         
         
         
@@ -495,9 +498,9 @@ function inputData() {
             "platform":["Premiere"],
             "assistant":true,
             "genre":["tv"],
-            "title":"International Mastering",
+            "title":"Test",
             "description":"Remove all product B-cam shots, remove verbal mentions, remove advertising segments. Check slate, slate timing. Create textless segments at the end of the sequence, without bars and tones, with at least 2 seconds gap between textless clips, and with handles until next/previous cut.",
-            "parent":[25]
+            "parent":[3]
         }
     ];
     return data;
