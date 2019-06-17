@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Flowchart2</title>
+	<title>Flowchart4</title>
 	<!--<link rel="stylesheet" href="style.css">-->
     <script
     src="https://code.jquery.com/jquery-3.3.1.min.js"
@@ -11,74 +11,18 @@
     crossorigin="anonymous"></script>
     
 	<style>
-	    #filter-bar-container {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-evenly;
-	    }
-	    #filter-bar {
-	        min-width: 1000px;
-	        min-height: 30px;
-            background-color: hsla(220,100%,50%,0.1);
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: flex-start;
-	    }
-	    
-	    #filter-bar p,button {
-	        margin:5px;
-	    }
-	    
-        #chart-container {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-evenly;
-        }
-        .chart {
-            position: relative;
-        }
-        .data {
-            position: absolute;
-            background-color: hsla(100,100%,50%,0.1);
-        }
-        .data-box {
-            position: relative;
-            width: 300px;
-            border-style: solid;
-            border-width: 1px;
-            padding: 10px 20px 10px 20px;
-            background-color: hsla(0,100%,50%,0.1);
-        }
-        .data-box-title {
-            font-family: "Calibri";
-            font-weight: bold;
-            font-size: 18;
-        }
-        .data-box-attribute {
-            font-family: "Calibri";
-            font-size: 16;
-        }
-        .data-children {
-            background-color: hsla(60,100%,50%,0.1);
-        }
-        #flowchart {
-            background-color: hsla(280,100%,50%,0.1);
-        }
+	* {
+	    background:hsla(165,100%,50%,5%);
+	    border:solid 1px hsla(150,100%,50%,50%);
+	}
+	#flowchart {
+	    border:solid 2px;
+	}
 	</style>
 </head>
 
 <body>
-    <h1>Flowchart 2</h1>
-    <div id="filter-bar-container">
-        <div id="filter-bar">
-            <p>Filter menu here: </p>
-            <button>Test</button>
-            <button>Button</button>
-            <button>Button</button>
-            <button>Button</button>
-        </div>
-    </div>
+    <h1>Flowchart 4</h1>
     <div id="chart-container">
         <div class="chart">
         	<canvas id="flowchart" width="1000" height="900"></canvas>
