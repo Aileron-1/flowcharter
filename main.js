@@ -1,205 +1,126 @@
-/*function drawArrows(arrows) {
-    // call again next time we can draw
-    requestAnimationFrame(drawArrows);
-    // clear canvas
-    ctx.clearRect(0, 0, cvWidth, cvHeight);
-    // draw everything
-    everyObject.forEach(function(o) {
-    ctx.fillStyle = o[4];
-    ctx.fillRect(o[0], o[1], o[2], o[3]);
-    });
-    // 
-    ctx.fillStyle = '#000';
-    ctx.fillText('click to add random rects', 10, 10);
-}*/
+//import data from './data.js';
 
-
-function createActivity (x, y, dataObject, dataID) {
-    var activity = {}//dataObject;
-    activity.id = dataID
-    activity.data = dataObject;
-    activity.attributeTextOrder = ["stage","substage","workflow","platform","assistant","genre","description"];
-    activity.attributeLabels = ["Stage","Substage","Workflow","Platform","Assistant","Genre","Description"];  // 
-    activity.bodyLineHeight = canvas.bodyFontStyle.size+2;
-    /*activity.bottomPadding = 20;
-    activity.rightPadding = 20;*/
-    
-    //activity.box = // This is the element to be created
-                // create it in here? seems to be fine and also saves space
-    activity.drawChildArrows = function (ctx) {
-        for (var i = 0; i < this.data.children.length; i++) {
-            //var childTop = 
-            console.log(this.box.position().top)
-            drawArrowTo(ctx, 100+(this.id*10), 200, 0,0);
-        }
-    };
-    
-    return activity;
+// Customize these properties when changing the input data.
+var flowchartProperties = {
+    dataAttibuteOrder: ["stage","substage","workflow","platform","assistant","genre","description"],  // Property names you want to display
+    dataAttributeLabels: ["Stage","Substage","Workflow","Platform","Assistant","Genre","Description"],  // The text displayed with each property
+    dataWidth: 150  // width of box in pixels
 }
 
-function activityToDiv (activity, chart) {
-    var data = activity.data;
-    var parentElement = activity.data;
-    var attributeTextOrder = activity.attributeTextOrder;
+var input = inputData();//data.inputData();
+var activities = [];
+var relationships = [];
+
+// Make activity objects
+let idIndex = 0; 
+for (var i=0; i<input.length; i++) {
+    // create an activity, then add it to the array
+    let activity = {};
+    let data = input[i];
     
-    // Create element
-    $('<div class="data"></div>').appendTo(chart);
-    var elementData = $('.data:last');
-    elementData.css({top: 0, left: 0});
-    
-    // Create box
-    $('<div class="data-box"></div>').appendTo('.data:last');
-    var elementBox = $('.data-box:last');
-    
-    // Append title
-    var textToAppend = data.title;
-    $('<div class="data-box-title">'+textToAppend+'</div>').appendTo(elementBox);
-    
-    // Append attributes 
-    for (var i = 0; i < attributeTextOrder.length; i++) {
-        var textToAppend = data[attributeTextOrder[i]];
-        $('<div class="data-box-attribute">'+textToAppend+'</div>').appendTo(elementBox);
+    activity.id = idIndex;
+    activity.x = 0;
+    activity.y = 0;
+    activity.parents = data['parent'];
+    activity.title = data['title'];
+    activity.attibuteOrder = flowchartProperties.dataAttibuteOrder;
+    activity.attributeLabels = flowchartProperties.dataAttributeLabels;
+    activity.attributes = {};
+    for (var o=0; o<activity.attibuteOrder.length; o++) {
+        let att = activity.attibuteOrder[o];
+        //let attStr = activity.attributeLabels[o];
+        activity.attributes[att] = data[att];
     }
     
-    // Create div for children 
-    $('<div class="data-children"></div>').appendTo('.data:last');
+    activities.push(activity);
+    idIndex += 1;
+}
+console.log(activities);
+
+// Find relationships and make objects for them 
+for (var i=0; i<activities.length; i++) {
+    let object = activities[i];
     
-    return elementData;
+    // Make a relationship for each 'parent'
+    for (var o=0; o<object.parents.length; o++) {
+        let relationship = {};
+        relationship.from = object.parents[o];
+        relationship.to = object.id;
+        relationship.x1 = 0;
+        relationship.y1 = 0;
+        relationship.x2 = 0;
+        relationship.y2 = 0;
+        relationships.push(relationship);
+    }
 }
+console.log(relationships);
 
-function moveElementTo (element, x, y, duration) {
-    var wOffset = element.width()/2;
-    $(element).animate({'top':y+'px', 'left':(x-wOffset)+'px'}, duration, function(){
-    });
-}
 
-function createArrow(owner, target) {
-    var arrow = {};
-    arrow.owner = owner;
-    arrow.target = target;
+
+// Order activities
+
+
+// Display activities
+
+
+
+
+
+// canvas
+const canvas = document.getElementById('flowchart');
+const ctx = canvas.getContext('2d');
+var panX = 0;
+var panY = 0;
+
+let gap = 80;
+
+canvas.height = activities.length*gap + 100;
+
+// Loop through each activity and relationship. Update its position
+for (var i=0; i<activities.length; i++) {
+    let activity = activities[i];
     
-    return arrow;
+    activity.x = 100+Math.random()*500 + panX;
+    activity.y = 25 + i*gap + panY;
 }
 
-function drawArrowTo (ctx, x1, y1, x2, y2) {
+for (var i=0; i<relationships.length; i++) {
+    let relationship = relationships[i];
+    let from = activities[relationship.from];
+    let to = activities[relationship.to];
+    
+    relationship.x1 = from.x;
+    relationship.y1 = from.y;
+    relationship.x2 = to.x;
+    relationship.y2 = to.y;
+}
+    
+
+                // update relationship xxyy
+                // Draw all the objects and link them
+
+
+
+for (var i=0; i<activities.length; i++) {
+    let activity = activities[i];
+    ctx.font = '24px fantasy';
+    ctx.fillText(activity.title, activity.x+panX, activity.y+panY);
+}
+
+for (var i=0; i<relationships.length; i++) {
+    let relationship = relationships[i];
+    
+    ctx.lineWidth = 2.0;
     ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
+    ctx.moveTo(relationship.x1,relationship.y1);
+    ctx.lineTo(relationship.x2,relationship.y2);
     ctx.stroke();
 }
 
-// Convert the raw data into 2 maps: data and relationships. 
-// Data contains data such as it's unique ID, title, description and the position of the element. 
-// Relationships contain the "arrows", using the unique ID of each element as the pointer 
-// Then, place the 
-
-// Prep canvas
-var c = document.getElementById("flowchart");
-var ctx = c.getContext("2d");
-var canvas = {
-    ctx: ctx,
-    origin: {
-        x: c.width/2,
-        y: 30
-    },
-    titleFontStyle: {
-        size: 18,
-        font: "Calibri Bold"
-    },
-    bodyFontStyle: {
-        size: 16,
-        font: "Calibri"
-    },
-};
-                                var bottomPadding = 100;
-                                //var topPadding = 100;
-                                
-// Initialize children
-var workingData = inputData();
-for (var i = 0; i < workingData.length; i++) {
-    workingData[i].children = [];
-}
-
-// Find children and add them to the respective parent activities.
-for (var i = 0; i < workingData.length; i++) {
-    var current = workingData[i]
-    for (var o = 0; o < current.parent.length; o++) {
-        workingData[current.parent[o]].children.push(i);
-    }
-}
-
-// Pushing first one, then push it's children, and continuing until no children are left..
-var toPush = [0];
-var toPushNext = [];
-var pushed = [];
-var activities = [[]];
-var activity;
-var count = 0;
-for (var u = 0; u < workingData.length; u++) {
-    for (var i = 0; i < toPush.length; i++) {
-        activity = workingData[toPush[i]];
-        activities[u].push(createActivity( 0, 0, activity, count));
-        // Take its children, but not if we've already took it
-        for (var o = 0; o < activity.children.length; o++) {
-            if (pushed.includes(activity.children[o]) == false) {
-                toPushNext.push(activity.children[o]);
-                pushed.push(activity.children[o]);
-            }
-        }
-        count++;
-    }
-    if (toPushNext.length != 0) { activities.push([]); }
-    toPush = toPushNext;
-    toPushNext = [];
-
-}
-console.log(activities)
-
-// Create the activities
-var offsetHeight = 0;
-var midpoint = $('.chart').width()/2; // ****************** midpoint of parent
-for (var i = 0; i < activities.length; i++) {
-    var level = activities[i]; 
-    
-    $('.chart').append('<div class="chart-level"></div>')
-    for (var o = 0; o < level.length; o++) {
-        var activity = activities[i][o];
-        var levelElement = $('.chart-level:last');
-        
-        
-        var e = activityToDiv(activity, levelElement);
-        activities[i][o].box = e;
-        
-        
-        
-        
-        // gen midpoint of parent (middle of canvas if no parent)
-        // have something for 2 and more parents 
-        if (activities[i][o].data.parent.length == 1) {
-            var p = activities[i][o].data.parent[0];
-            //midpoint = p.box.outerWidth()/2;
-        }
-        var orderHorizontalOffset = o*(e.outerWidth()+20);
-        var middingOffset = ((level.length-1)*(e.outerWidth()+20))/2;
-        moveElementTo(e, midpoint+orderHorizontalOffset-middingOffset,offsetHeight+20,250);
-        
-        
-    }
-        
-    offsetHeight += e.outerHeight()+20;
-}
-
-// Create arrows, 1st pass
 
 
-
-// Update canvas height
-c.height = offsetHeight+bottomPadding;
-
-
-// Animation loop
-//drawArrows();
-
+// X = average of parents' X.  (different if root/no parent)
+// Y = largest of parents Y + spacing
 
 
 
