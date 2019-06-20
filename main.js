@@ -1,48 +1,58 @@
-//import data from './data.js';
+/* global $ */
 
 // Customize these properties when changing the input data.
-var flowchartProperties = {
-    dataAttibuteOrder: ["stage","substage","workflow","platform","assistant","genre","description"],  // Property names you want to display
+var flowchartSettings = {
+    dataAttributeOrder: ["stage","substage","workflow","platform","assistant","genre","description"],  // Property names you want to display
     dataAttributeLabels: ["Stage","Substage","Workflow","Platform","Assistant","Genre","Description"],  // The text displayed with each property
-    dataWidth: 150  // width of box in pixels
 }
 
-var input = inputData();//data.inputData();
+var input = inputData();  // Expects an array of objects that has the properties listed in the settings above.
 var activities = [];
 var relationships = [];
 
-// Make activity objects
-let idIndex = 0; 
+// Find children and add them to the respective parent activities.
+for (var i = 0; i < input.length; i++) {
+    input[i].children = [];
+}
 for (var i=0; i<input.length; i++) {
+    var current = input[i]
+    for (var o=0; o<current.parent.length; o++) {
+        input[current.parent[o]].children.push(i);
+    }
+}
+
+// Make activity objects
+for (let i=0; i<input.length; i++) {
     // create an activity, then add it to the array
-    let activity = {};
     let data = input[i];
-    
-    activity.id = idIndex;
-    activity.x = 0;
+    let activity = {};
+    activity.x = 0;  // x and y correspond to the top and middle of the activity box 
     activity.y = 0;
-    activity.parents = data['parent'];
+    activity.width = 0;
+    activity.height = 0;
+    activity.div = '';
+    activity.id = i;//idIndex;
     activity.title = data['title'];
-    activity.attibuteOrder = flowchartProperties.dataAttibuteOrder;
-    activity.attributeLabels = flowchartProperties.dataAttributeLabels;
+    activity.parents = data['parent'];
+    activity.children = data['children'];
+    activity.relationships = [];
+    activity.attributeOrder = flowchartSettings.dataAttributeOrder;
+    activity.attributeLabels = flowchartSettings.dataAttributeLabels;
     activity.attributes = {};
-    for (var o=0; o<activity.attibuteOrder.length; o++) {
-        let att = activity.attibuteOrder[o];
-        //let attStr = activity.attributeLabels[o];
+    for (let o=0; o<activity.attributeOrder.length; o++) {
+        let att = activity.attributeOrder[o];
         activity.attributes[att] = data[att];
     }
-    
     activities.push(activity);
-    idIndex += 1;
 }
 console.log(activities);
 
 // Find relationships and make objects for them 
-for (var i=0; i<activities.length; i++) {
+for (let i=0; i<activities.length; i++) {
     let object = activities[i];
     
     // Make a relationship for each 'parent'
-    for (var o=0; o<object.parents.length; o++) {
+    for (let o=0; o<object.parents.length; o++) {
         let relationship = {};
         relationship.from = object.parents[o];
         relationship.to = object.id;
@@ -57,73 +67,128 @@ console.log(relationships);
 
 
 
+
+
+
 // Order activities
 
 
-// Display activities
 
+/*
+let toPush = [0];
+let toPushNext = [];
+let pushed = [];
+let count = 0;
+for (var u = 0; u < activities.length; u++) {
+    for (var i = 0; i < toPush.length; i++) {
+        let activity = activities[toPush[i]];
+        
+        // Take its children, but not if we've already took it
+        for (var o = 0; o < activity.children.length; o++) {
+            if (pushed.includes(activity.children[o]) == false) {
+                toPushNext.push(activity.children[o]);
+                pushed.push(activity.children[o]);
+            }
+        }
+        count++;
+    }
+    if (toPushNext.length != 0) { activities.push([]); }
+    toPush = toPushNext;
+    toPushNext = [];
+}
+console.log(pushed)
+*/
+
+
+
+
+
+
+
+// Create divs for each activity
+for (let i=0; i<activities.length; i++) {
+    let activity = activities[i];
+    let activityDiv = '';
+    activityDiv += '<div class="flowchart-activity"><div class="flowchart-activity-info">';
+    
+    activityDiv += '<h2>'+ activity.title +'</h2><ul>';
+    for (let o=0; o<activity.attributeOrder.length; o++) {
+        activityDiv += '<li>';
+        activityDiv += activity.attributeLabels[o] + ': ';
+        activityDiv += activity.attributes[activity.attributeOrder[o]];
+        activityDiv += '</li>';
+    }
+    
+    activityDiv += '</ul></div></div>';
+    
+    $("#activity-wrapper").append(activityDiv);
+    activity.div = $('.flowchart-activity:last');
+}
 
 
 
 
 // canvas
-const canvas = document.getElementById('flowchart');
+const canvas = document.getElementById('chart-canvas');
 const ctx = canvas.getContext('2d');
 var panX = 0;
 var panY = 0;
-
 let gap = 80;
 
-canvas.height = activities.length*gap + 100;
+// Update canvas width, height
+$(document).ready(function () {
+    updateDraw()
+});
 
-// Loop through each activity and relationship. Update its position
-for (var i=0; i<activities.length; i++) {
-    let activity = activities[i];
+// Update each activity's height based on internal elements
+function updateDraw () {
+    // Update canvas size
+    canvas.height = $('#activity-wrapper').height();
+    canvas.width = $('#activity-wrapper').width();
     
-    activity.x = 100+Math.random()*500 + panX;
-    activity.y = 25 + i*gap + panY;
+    // Update each activity and relationship's position
+    for (let i=0; i<activities.length; i++) {
+        let activity = activities[i];
+        let divToPointTo = activity.div.children('.flowchart-activity-info');
+        let activityPos = divToPointTo.position();
+        
+        activity.x = activityPos.left;//100 + Math.random()*500 + panX;
+        activity.y = activityPos.top;//25 + i*gap + panY;
+        
+        activity.width = divToPointTo.width();
+        activity.height = divToPointTo.height();
+    }
+    for (let i=0; i<relationships.length; i++) {
+        let relationship = relationships[i];
+        let from = activities[relationship.from];
+        let to = activities[relationship.to];
+        
+        relationship.x1 = from.x + from.width/2;
+        relationship.y1 = from.y + from.height;
+        relationship.x2 = to.x + to.width/2;
+        relationship.y2 = to.y;
+        
+        ctx.lineWidth = 2.0;
+        ctx.beginPath();
+        ctx.moveTo(relationship.x1,relationship.y1);
+        ctx.lineTo(relationship.x2,relationship.y2);
+        ctx.stroke();
+    }
+    
+    requestAnimationFrame(updateDraw);
 }
 
-for (var i=0; i<relationships.length; i++) {
-    let relationship = relationships[i];
-    let from = activities[relationship.from];
-    let to = activities[relationship.to];
-    
-    relationship.x1 = from.x;
-    relationship.y1 = from.y;
-    relationship.x2 = to.x;
-    relationship.y2 = to.y;
+
+
+
+
+
+
+function moveElementTo (element, x, y, duration) {
+    var wOffset = element.width()/2;
+    $(element).animate({'top':y+'px', 'left':(x-wOffset)+'px'}, duration, function(){
+    });
 }
-    
-
-                // update relationship xxyy
-                // Draw all the objects and link them
-
-
-
-for (var i=0; i<activities.length; i++) {
-    let activity = activities[i];
-    ctx.font = '24px fantasy';
-    ctx.fillText(activity.title, activity.x+panX, activity.y+panY);
-}
-
-for (var i=0; i<relationships.length; i++) {
-    let relationship = relationships[i];
-    
-    ctx.lineWidth = 2.0;
-    ctx.beginPath();
-    ctx.moveTo(relationship.x1,relationship.y1);
-    ctx.lineTo(relationship.x2,relationship.y2);
-    ctx.stroke();
-}
-
-
-
-// X = average of parents' X.  (different if root/no parent)
-// Y = largest of parents Y + spacing
-
-
-
 
 
 
@@ -343,7 +408,7 @@ function inputData() {
             "genre":["social","tv"],
             "title":"Sync",
             "description":"Sync with Pluraleyes by media on local drive (sync from server might cause error). Import the resulting xml into premiere with name of recipie (e.g. GCBC11_ShootDay31_01_Chicken and Leek Pie.prproj) avoid symbols. Relink to server media and make 2 copies of the Premiere Project onto the 2 local drives.",
-            "parent":[18]
+            "parent":[17]
         },
         {
             "stage":"post",
@@ -354,7 +419,7 @@ function inputData() {
             "genre":["social","tv"],
             "title":"Format Cards",
             "description":"Note in shoot note that files is synced. Put card content in trash and empty trash. Put card in wrangle outbox.",
-            "parent":[19]
+            "parent":[18]
         },
         {
             "stage":"post",
@@ -365,7 +430,7 @@ function inputData() {
             "genre":["social"],
             "title":"Review Edit",
             "description":"Review with Jazz before export.",
-            "parent":[20]
+            "parent":[19]
         },
         {
             "stage":"post",
@@ -376,7 +441,7 @@ function inputData() {
             "genre":["social"],
             "title":"Editing Projects",
             "description":"Put editor's initials at the end of the shot project (e.g. GCBC11_Day31_02_Dish_KL.prproj.) Copy shot project onto desktop for editing, and move it back to server at the end of each day. Sequence naming convetion: GCBC11_Day31_02_Dish_KL_Edit01",
-            "parent":[21]
+            "parent":[20]
         },
         {
             "stage":"post",
@@ -387,7 +452,7 @@ function inputData() {
             "genre":["social"],
             "title":"Vimeo Review",
             "description":"Upload to Vimeo with password of the show acronym or 'Mission' or '10' for 10Daily",
-            "parent":[22]
+            "parent":[21]
         },
         {
             "stage":"post",
@@ -398,7 +463,7 @@ function inputData() {
             "genre":["social","tv"],
             "title":"Mastering",
             "description":"Move all bins into Edit_Project Assets bin, duplicate sequence into project root with naming format GCBC11_Day31_02_Dish_MASTER.prproj",
-            "parent":[23]
+            "parent":[22]
         },
         {
             "stage":"post",
@@ -409,20 +474,9 @@ function inputData() {
             "genre":["tv"],
             "title":"International Mastering",
             "description":"Remove all product B-cam shots, remove verbal mentions, remove advertising segments. Check slate, slate timing. Create textless segments at the end of the sequence, without bars and tones, with at least 2 seconds gap between textless clips, and with handles until next/previous cut.",
-            "parent":[23]
+            "parent":[22]
         } //25th
-        , // test
-        {
-            "stage":"TEST 3",
-            "substage":"mastering",
-            "workflow":"hsquared",
-            "platform":["Premiere"],
-            "assistant":true,
-            "genre":["tv"],
-            "title":"Test",
-            "description":"Remove all product B-cam shots, remove verbal mentions, remove advertising segments. Check slate, slate timing. Create textless segments at the end of the sequence, without bars and tones, with at least 2 seconds gap between textless clips, and with handles until next/previous cut.",
-            "parent":[3]
-        }
+        
     ];
     return data;
 }
