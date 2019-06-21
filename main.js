@@ -72,8 +72,8 @@ for (let i=0; i<activities.length; i++) {
 
 
 
-
 /*
+
 // Create activity divs, in order
 var created = [];
 
@@ -114,28 +114,27 @@ console.log(orderedActivities)
 for (let i=0; i<orderedActivities.length; i++) {
     for (let o=0; o<orderedActivities[i].length; o++) {
         let activity = orderedActivities[i][o];
-        createActivityDiv(activity.id);
+        //createActivityDiv(activity.id);
         created.push(activity.id);
     }
-}
+}*/
 
-*/
+
+
 
 // w
-var created = [];
+/*var created = [];
 for (let i=0; i<activities.length; i++) {
     let activity = activities[i];
     createActivityDiv(activity.id);
     created.push(activity.id);
     
-}
+}*/
 
 
 
 
 
-
-/*
 // Create activity divs, in order
 var created = [];
 // Start with the ones with no parents
@@ -155,27 +154,33 @@ function createDivAndCheckChild (id) {
         }
     }
     created.push(id);
-}*/
+}
 
 
 
 function createActivityDiv(id) {
     let activity = activities[id];
     let div = $('#activity-wrapper');
-    if (activity.parents.length > 0) {
-        div = activities[activity.parents[0]].div;
-    }
     let activityDiv = '';
     activityDiv += '<div class="flowchart-activity"><div class="flowchart-activity-info">';
-    activityDiv += '<h2>'+ activity.title +'</h2><ul>';
+    activityDiv += '<h2>'+id+' '+ activity.title +'</h2><ul>';
     for (let o=0; o<activity.attributeOrder.length; o++) {
         activityDiv += '<li>';
         activityDiv += '<span class="flowchart-label">' + activity.attributeLabels[o] + ': </span>';
         activityDiv += activity.attributes[activity.attributeOrder[o]];
         activityDiv += '</li>';
     }
-    activityDiv += '</ul></div></div>';
+    activityDiv += '</ul></div>';
+    activityDiv += '<div class="flowchart-activity-children"></div>';
+    activityDiv += '</div>';
     
+    if (activity.parents.length > 0) {
+        div = activities[activity.parents[0]].div.children('.flowchart-activity-children');
+    }
+    console.log(id+': '+activity.children.length)
+    if (activity.children.length > 1) {
+        $('.flowchart-activity:last').addClass('multiple');
+    }
     div.append(activityDiv);
     activity.div = $('.flowchart-activity:last');
     
@@ -202,7 +207,7 @@ function updateDraw (created) {
     canvas.height = $('#activity-wrapper').height();
     canvas.width = $('#activity-wrapper').width();
     
-    // Update each activity and relationship's position
+    // Update and draw each activity and relationship's position
     for (let i=0; i<created.length; i++) {
         let activity = activities[created[i]];
         let divToPointTo = activity.div.children('.flowchart-activity-info');
@@ -213,7 +218,19 @@ function updateDraw (created) {
         
         activity.width = divToPointTo.outerWidth();
         activity.height = divToPointTo.outerHeight();
+        
+        
     }
+    
+    /*
+    for (let i=0; i<orderedActivities.length; i++) {
+        for (let o=0; o<orderedActivities[i].length; o++) {
+            let activity = orderedActivities[i][o];
+            //createActivityDiv(activity.id);
+            created.push(activity.id);
+        }
+    }*/
+    
     for (let i=0; i<relationships.length; i++) {
         let relationship = relationships[i];
         let from = activities[relationship.from];
