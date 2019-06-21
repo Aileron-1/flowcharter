@@ -73,7 +73,7 @@ for (let i=0; i<activities.length; i++) {
 
 
 
-
+/*
 // Create activity divs, in order
 var created = [];
 
@@ -110,7 +110,6 @@ for (let u = 0; u < activities.length; u++) {
 console.log(orderedActivities)
 
 
-
 // Use ordered list to make the divs in order
 for (let i=0; i<orderedActivities.length; i++) {
     for (let o=0; o<orderedActivities[i].length; o++) {
@@ -119,6 +118,20 @@ for (let i=0; i<orderedActivities.length; i++) {
         created.push(activity.id);
     }
 }
+
+*/
+
+// w
+var created = [];
+for (let i=0; i<activities.length; i++) {
+    let activity = activities[i];
+    createActivityDiv(activity.id);
+    created.push(activity.id);
+    
+}
+
+
+
 
 
 
@@ -192,7 +205,6 @@ function updateDraw (created) {
     // Update each activity and relationship's position
     for (let i=0; i<created.length; i++) {
         let activity = activities[created[i]];
-        console.log(created[i])
         let divToPointTo = activity.div.children('.flowchart-activity-info');
         let activityPos = divToPointTo.position();
         
