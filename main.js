@@ -4,8 +4,8 @@
 var flowchartSettings = {
     dataAttributeOrder: ["stage","substage","workflow","platform","assistant","genre","description"],  // Property names you want to display
     dataAttributeLabels: ["Stage","Substage","Workflow","Platform","Assistant","Genre","Description"],  // The text displayed with each property
+    dataTitleKey: "title"
 }
-
 var input = inputData();  // Expects an array of objects that has the properties listed in the settings above.
 var activities = [];
 var relationships = [];
@@ -32,7 +32,7 @@ for (let i=0; i<input.length; i++) {
     activity.height = 0;
     activity.div = '';
     activity.id = i;//idIndex;
-    activity.title = data['title'];
+    activity.title = data[flowchartSettings.dataTitleKey];
     activity.parents = data['parent'];
     activity.children = data['children'];
     activity.relationships = [];
@@ -45,7 +45,6 @@ for (let i=0; i<input.length; i++) {
     }
     activities.push(activity);
 }
-console.log(activities);
 
 // Find relationships and make objects for them 
 for (let i=0; i<activities.length; i++) {
@@ -63,118 +62,165 @@ for (let i=0; i<activities.length; i++) {
         relationships.push(relationship);
     }
 }
-console.log(relationships);
 
 
 
 
 
 
-// Order activities
 
 
 
-/*
-let toPush = [0];
+
+
+
+// Create activity divs, in order
+var created = [];
+
+// Pushing first one, then push it's children, and continuing until no children are left..
+let toPush = [];
 let toPushNext = [];
 let pushed = [];
-let count = 0;
-for (var u = 0; u < activities.length; u++) {
-    for (var i = 0; i < toPush.length; i++) {
-        let activity = activities[toPush[i]];
-        
+let orderedActivities = [[]];
+let activity;
+// Start with the ones with no parents
+for (let i=0; i<activities.length; i++) {
+    let activity = activities[i];
+    if (activity.parents.length == 0) {
+        toPush.push(i);
+    }
+}
+for (let u = 0; u < activities.length; u++) {
+    for (let i = 0; i < toPush.length; i++) {
+        activity = activities[toPush[i]];
+        orderedActivities[u].push(activity);
         // Take its children, but not if we've already took it
-        for (var o = 0; o < activity.children.length; o++) {
+        for (let o = 0; o < activity.children.length; o++) {
             if (pushed.includes(activity.children[o]) == false) {
                 toPushNext.push(activity.children[o]);
                 pushed.push(activity.children[o]);
             }
         }
-        count++;
     }
-    if (toPushNext.length != 0) { activities.push([]); }
+    if (toPushNext.length != 0) { orderedActivities.push([]); }
     toPush = toPushNext;
     toPushNext = [];
+
 }
-console.log(pushed)
-*/
+console.log(orderedActivities)
 
 
 
+// Use ordered list to make the divs in order
+for (let i=0; i<orderedActivities.length; i++) {
+    for (let o=0; o<orderedActivities[i].length; o++) {
+        let activity = orderedActivities[i][o];
+        createActivityDiv(activity.id);
+        created.push(activity.id);
+    }
+}
 
 
 
-
-// Create divs for each activity
+/*
+// Create activity divs, in order
+var created = [];
+// Start with the ones with no parents
 for (let i=0; i<activities.length; i++) {
     let activity = activities[i];
+    if (activity.parents.length == 0) {
+        createDivAndCheckChild(i);
+    }
+}
+
+function createDivAndCheckChild (id) {
+    if (created.includes(id) == false) {
+        let activity = activities[id];
+        createActivityDiv(id);
+        for (let i=0; i<activity.children.length; i++) {
+            createDivAndCheckChild(activity.children[i]);
+        }
+    }
+    created.push(id);
+}*/
+
+
+
+function createActivityDiv(id) {
+    let activity = activities[id];
+    let div = $('#activity-wrapper');
+    if (activity.parents.length > 0) {
+        div = activities[activity.parents[0]].div;
+    }
     let activityDiv = '';
     activityDiv += '<div class="flowchart-activity"><div class="flowchart-activity-info">';
-    
     activityDiv += '<h2>'+ activity.title +'</h2><ul>';
     for (let o=0; o<activity.attributeOrder.length; o++) {
         activityDiv += '<li>';
-        activityDiv += activity.attributeLabels[o] + ': ';
+        activityDiv += '<span class="flowchart-label">' + activity.attributeLabels[o] + ': </span>';
         activityDiv += activity.attributes[activity.attributeOrder[o]];
         activityDiv += '</li>';
     }
-    
     activityDiv += '</ul></div></div>';
     
-    $("#activity-wrapper").append(activityDiv);
+    div.append(activityDiv);
     activity.div = $('.flowchart-activity:last');
+    
+    //$('.flowchart-activity:last').css('order', id);
 }
-
-
 
 
 // canvas
 const canvas = document.getElementById('chart-canvas');
 const ctx = canvas.getContext('2d');
-var panX = 0;
-var panY = 0;
-let gap = 80;
 
 // Update canvas width, height
 $(document).ready(function () {
-    updateDraw()
+    updateDraw(created);
+});
+
+$('#testbutton').click(function() {
+    $('#test').append('<p>Testsa</p>')
 });
 
 // Update each activity's height based on internal elements
-function updateDraw () {
+function updateDraw (created) {
     // Update canvas size
     canvas.height = $('#activity-wrapper').height();
     canvas.width = $('#activity-wrapper').width();
     
     // Update each activity and relationship's position
-    for (let i=0; i<activities.length; i++) {
-        let activity = activities[i];
+    for (let i=0; i<created.length; i++) {
+        let activity = activities[created[i]];
+        console.log(created[i])
         let divToPointTo = activity.div.children('.flowchart-activity-info');
         let activityPos = divToPointTo.position();
         
-        activity.x = activityPos.left;//100 + Math.random()*500 + panX;
-        activity.y = activityPos.top;//25 + i*gap + panY;
+        activity.x = activityPos.left;
+        activity.y = activityPos.top;
         
-        activity.width = divToPointTo.width();
-        activity.height = divToPointTo.height();
+        activity.width = divToPointTo.outerWidth();
+        activity.height = divToPointTo.outerHeight();
     }
     for (let i=0; i<relationships.length; i++) {
         let relationship = relationships[i];
         let from = activities[relationship.from];
         let to = activities[relationship.to];
         
-        relationship.x1 = from.x + from.width/2;
-        relationship.y1 = from.y + from.height;
-        relationship.x2 = to.x + to.width/2;
-        relationship.y2 = to.y;
+        relationship.x1 = from.x + from.width/2 + 20;
+        relationship.y1 = from.y + from.height + 20;
+        relationship.x2 = to.x + to.width/2 + 20;
+        relationship.y2 = to.y + 20;
         
         ctx.lineWidth = 2.0;
         ctx.beginPath();
-        ctx.moveTo(relationship.x1,relationship.y1);
-        ctx.lineTo(relationship.x2,relationship.y2);
+        ctx.moveTo(relationship.x1,relationship.y1+3);
+        ctx.lineTo(relationship.x2,relationship.y2-3);
         ctx.stroke();
+        
+        ctx.fillRect(relationship.x2-4,relationship.y2-8,8,8);
+        ctx.fillRect(relationship.x1-4,relationship.y1,8,8);
     }
-    
     requestAnimationFrame(updateDraw);
 }
 
