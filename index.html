@@ -24,15 +24,20 @@
 		#activity-wrapper {
 			display: flex;
 			flex-flow: row wrap;
-			justify-content: space-between;
+			justify-content: space-around;
+			align-items: stretch;
 		}
 		.flowchart-activity {
 			display: flex;
-			flex-flow: row wrap;
+			flex-flow: column wrap;
+			flex-grow: 1;
 			justify-content: center;
-			align-content: space-around;
 			align-items: center;
 			max-width: 600px;
+		}
+		.flowchart-activity-children {
+			display: flex;
+			flex-flow: row;
 		}
 		.flowchart-activity-info {
 			background: white;
@@ -40,7 +45,7 @@
 			border-radius: 3px;
 			z-index: 1;
 			display: block;
-			max-width: 250px;
+			max-width: 300px;
 			padding: 20px;
 			margin: 20px;
 			font-family: 'Arial';
@@ -61,6 +66,10 @@
 		.flowchart-label {
 			font-weight: bold;
 		}
+		.multiple {
+			flex-flow: row wrap;
+			width: 30%;
+		}
 	</style>
 </head>
 
@@ -69,7 +78,7 @@
     <h1>Flowchart 4</h1>
     <button id="testbutton">Test</button>
     <div id="flowchart">
-		<canvas id="chart-canvas" width="1000" height="900"></canvas>
+		<canvas id="chart-canvas" width="1200" height="1200"></canvas>
 		<div id="activity-wrapper"></div>
     </div>
     <script type="text/JavaScript" src="main.js"></script>
