@@ -1,30 +1,49 @@
-import { inputData } from './data.js';
-
 // Customize these properties when changing the input data.
-var flowchartSettings = {
+const flowchartSettings = {
     dataAttributeOrder: ["stage","substage","workflow","platform","assistant","genre","description"],  // Property names you want to display
     dataAttributeLabels: ["Stage","Substage","Workflow","Platform","Assistant","Genre","Description"],  // The text displayed with each property
     dataTitleKey: "title"  // Key in object for use as title 
 }
-var input = inputData();  // Expects an array of objects that has the properties listed in the settings above.
+
+
+
+
 var activities = [];
 var relationships = [];
+var objects = inputData();
+
+// Canvas
+const canvas = document.getElementById('chart-canvas');
+const ctx = canvas.getContext('2d');
+
+// Update canvas width, height
+$(document).ready(function () {
+    updateDraw(created);
+});
+
+// Button
+$('#testbutton').click(function() {
+    $('#test').append('<p>Test</p>')
+});
+
+
+
 
 // Find children and add them to the respective parent activities.
-for (var i = 0; i < input.length; i++) {
-    input[i].children = [];
+for (var i = 0; i < objects.length; i++) {
+    objects[i].children = [];
 }
-for (var i=0; i<input.length; i++) {
-    var current = input[i]
+for (var i=0; i<objects.length; i++) {
+    var current = objects[i]
     for (var o=0; o<current.parent.length; o++) {
-        input[current.parent[o]].children.push(i);
+        objects[current.parent[o]].children.push(i);
     }
 }
 
 // Make activity objects
-for (let i=0; i<input.length; i++) {
+for (let i=0; i<objects.length; i++) {
     // create an activity, then add it to the array
-    let data = input[i];
+    let data = objects[i];
     let activity = {};
     activity.x = 0;  // x and y correspond to the top and middle of the activity box 
     activity.y = 0;
@@ -49,7 +68,6 @@ for (let i=0; i<input.length; i++) {
 // Find relationships and make objects for them 
 for (let i=0; i<activities.length; i++) {
     let object = activities[i];
-    
     // Make a relationship for each 'parent'
     for (let o=0; o<object.parents.length; o++) {
         let relationship = {};
@@ -63,81 +81,8 @@ for (let i=0; i<activities.length; i++) {
     }
 }
 
-
-
-
-
-
-
-
-
-
-/*
-
-// Create activity divs, in order
+// Create activity divs, starting with the ones with no parents
 var created = [];
-
-// Pushing first one, then push it's children, and continuing until no children are left..
-let toPush = [];
-let toPushNext = [];
-let pushed = [];
-let orderedActivities = [[]];
-let activity;
-// Start with the ones with no parents
-for (let i=0; i<activities.length; i++) {
-    let activity = activities[i];
-    if (activity.parents.length == 0) {
-        toPush.push(i);
-    }
-}
-for (let u = 0; u < activities.length; u++) {
-    for (let i = 0; i < toPush.length; i++) {
-        activity = activities[toPush[i]];
-        orderedActivities[u].push(activity);
-        // Take its children, but not if we've already took it
-        for (let o = 0; o < activity.children.length; o++) {
-            if (pushed.includes(activity.children[o]) == false) {
-                toPushNext.push(activity.children[o]);
-                pushed.push(activity.children[o]);
-            }
-        }
-    }
-    if (toPushNext.length != 0) { orderedActivities.push([]); }
-    toPush = toPushNext;
-    toPushNext = [];
-
-}
-console.log(orderedActivities)
-
-
-// Use ordered list to make the divs in order
-for (let i=0; i<orderedActivities.length; i++) {
-    for (let o=0; o<orderedActivities[i].length; o++) {
-        let activity = orderedActivities[i][o];
-        //createActivityDiv(activity.id);
-        created.push(activity.id);
-    }
-}*/
-
-
-
-
-// w
-/*var created = [];
-for (let i=0; i<activities.length; i++) {
-    let activity = activities[i];
-    createActivityDiv(activity.id);
-    created.push(activity.id);
-    
-}*/
-
-
-
-
-
-// Create activity divs, in order
-var created = [];
-// Start with the ones with no parents
 for (let i=0; i<activities.length; i++) {
     let activity = activities[i];
     if (activity.parents.length == 0) {
@@ -145,6 +90,7 @@ for (let i=0; i<activities.length; i++) {
     }
 }
 
+// Create an element and check if it should keep going
 function createDivAndCheckChild (id) {
     if (created.includes(id) == false) {
         let activity = activities[id];
@@ -156,8 +102,7 @@ function createDivAndCheckChild (id) {
     created.push(id);
 }
 
-
-
+// Create a DOM element based on an activity object
 function createActivityDiv(id) {
     let activity = activities[id];
     let div = $('#activity-wrapper');
@@ -173,7 +118,7 @@ function createActivityDiv(id) {
     activityDiv += '</ul></div>';
     activityDiv += '<div class="flowchart-activity-children"></div>';
     activityDiv += '</div>';
-    
+
     if (activity.parents.length > 0) {
         div = activities[activity.parents[0]].div.children('.flowchart-activity-children');
     }
@@ -183,25 +128,23 @@ function createActivityDiv(id) {
         $('.flowchart-activity-children:last').addClass('multiple');
     }
     activity.div = $('.flowchart-activity:last');
-    
-    //$('.flowchart-activity:last').css('order', id);
 }
 
 
-// canvas
-const canvas = document.getElementById('chart-canvas');
-const ctx = canvas.getContext('2d');
+// Takes a tag and 
+// Returns a list of object IDs 
+function searchTag () {
 
-// Update canvas width, height
-$(document).ready(function () {
-    updateDraw(created);
-});
+}
 
-$('#testbutton').click(function() {
-    $('#test').append('<p>Test</p>')
-});
+// Takes a list of object IDs
+// Turns them into Hidden and 
+function filterObject () {
 
-// Update each activity's height based on internal elements
+}
+
+
+// Update each activity's height based on internal elements and draw them
 function updateDraw (created) {
     // Update canvas size
     canvas.height = $('#activity-wrapper').height();
@@ -218,18 +161,7 @@ function updateDraw (created) {
         
         activity.width = divToPointTo.outerWidth();
         activity.height = divToPointTo.outerHeight();
-        
-        
     }
-    
-    /*
-    for (let i=0; i<orderedActivities.length; i++) {
-        for (let o=0; o<orderedActivities[i].length; o++) {
-            let activity = orderedActivities[i][o];
-            //createActivityDiv(activity.id);
-            created.push(activity.id);
-        }
-    }*/
     
     for (let i=0; i<relationships.length; i++) {
         let relationship = relationships[i];
@@ -254,14 +186,337 @@ function updateDraw (created) {
 }
 
 
-
-
-
-
-
 function moveElementTo (element, x, y, duration) {
     var wOffset = element.width()/2;
     $(element).animate({'top':y+'px', 'left':(x-wOffset)+'px'}, duration, function(){
     });
 }
 
+
+
+
+
+
+
+
+
+
+
+
+/*------- Data used to create flowchart items ------*/
+function inputData() {
+    return [
+        {
+            "id":0,
+            "stage":"post",
+            "substage":"prep",
+            "workflow":"Smash",
+            "platform":["Avid"],
+            "assistant":true,
+            "genre":"feature",
+            "title":"Wrangling",
+            "description":"Copy synced dailies from Technicolor HDD to Unity.",
+            "parent":[]
+        },
+        {
+            "id":1,
+            "stage":"post",
+            "substage":"prep",
+            "workflow":["Smash","freelance"],
+            "platform":["Premiere","Avid"],
+            "assistant":true,
+            "genre":"feature",
+            "title":"Subclipping",
+            "description":"Create subclips with only the stereo mix.",
+            "parent":[0]
+        },
+        {
+            "id":2,
+            "stage":"post",
+            "substage":"prep",
+            "workflow":["Smash","freelance"],
+            "platform":["Premiere","Avid"],
+            "assistant":true,
+            "genre":["feature","short","music","doco","tv","social"],
+            "title":"Logging",
+            "description":"Write Description of all clips.",
+            "parent":[1]
+        },
+        {
+            "id":3,
+            "stage":"post",
+            "substage":"prep",
+            "workflow":["freelance"],
+            "platform":"FCPX",
+            "assistant":true,
+            "genre":["feature","short","music","doco","tv","social"],
+            "title":"Keywording",
+            "description":"Organise clips into keywords",
+            "parent":[1]
+        },
+        {
+            "id":4,
+            "stage":"post",
+            "substage":"prep",
+            "workflow":"Smash",
+            "platform":["Premiere","Avid"],
+            "assistant":true,
+            "genre":["feature","short","music","doco","tv","social"],
+            "title":"Markers",
+            "description":"Put green markers for Action.",
+            "parent":[2]
+        },
+        {
+            "id":5,
+            "stage":"post",
+            "substage":"prep",
+            "workflow":"Smash",
+            "platform":["FCPX"],
+            "assistant":true,
+            "genre":["feature","short","music","doco","tv","social"],
+            "title":"Markers",
+            "description":"Put markers for Action.",
+            "parent":[3]
+        },
+        {
+            "id":6,
+            "stage":"post",
+            "substage":"prep",
+            "workflow":"freelance",
+            "platform":["Premiere","Avid","FCPX"],
+            "assistant":false,
+            "genre":["feature","short","music","doco","tv","social"],
+            "title":"Assembly",
+            "description":"Do rough assembly according to circle takes. Provide feedback if something's missing.",
+            "parent":[4,5]
+        },
+        {
+            "id":7,
+            "stage":"post",
+            "substage":"prep",
+            "workflow":"freelance",
+            "platform":["Premiere","Avid","FCPX"],
+            "assistant":false,
+            "genre":["feature","short","doco","tv","social"],
+            "title":"Assembly",
+            "description":"Try to use every shot in rough assembly, but provide alternative cut if time allows. ASSEMBLY MUST FOLLOW SCRIPT.",
+            "parent":[6]
+        },
+        {
+            "id":8,
+            "stage":"post",
+            "substage":"cut",
+            "workflow":"freelance",
+            "platform":["Premiere","Avid","FCPX"],
+            "assistant":false,
+            "genre":["feature","short","music","doco","tv","social"],
+            "title":"Director's Cut",
+            "description":"Back and forth process with the director finding his cut.",
+            "parent":[7]
+        },
+        {
+            "id":9,
+            "stage":"post",
+            "substage":"cut",
+            "workflow":"freelance",
+            "platform":["Premiere","Avid","FCPX"],
+            "assistant":true,
+            "genre":["feature","short","music","doco","tv","social"],
+            "title":"Temp Effects",
+            "description":"Apply temp grade, temp sound, temp music and temp effect.",
+            "parent":[8]
+        },
+        {
+            "id":10,
+            "stage":"post",
+            "substage":"handover",
+            "workflow":"freelance",
+            "platform":["Premiere","Avid","FCPX"],
+            "assistant":true,
+            "genre":["feature","short","music","doco","tv","social"],
+            "title":"Picture Lock",
+            "description":"Duplicate timeline and remove all disabled clips, and minimize the number of tracks",
+            "parent":[9]
+        },
+        {
+            "id":11,
+            "stage":"post",
+            "substage":"handover",
+            "workflow":"freelance",
+            "platform":["Premiere"],
+            "assistant":true,
+            "genre":["feature","short","music","doco","tv","social"],
+            "title":"Audio Handover",
+            "description":"Keep multicam clips audio, delete all picture & export AAF with audio in a folder.",
+            "parent":[10]
+        },
+        {
+            "id":12,
+            "stage":"post",
+            "substage":"handover",
+            "workflow":"freelance",
+            "platform":["FCPX"],
+            "assistant":true,
+            "genre":["feature","short","music","doco","tv","social"],
+            "title":"Assign Roles",
+            "description":"Check every clips on the timeline for their correct roles.",
+            "parent":[10]
+        },
+        {
+            "id":13,
+            "stage":"post",
+            "substage":"handover",
+            "workflow":"freelance",
+            "platform":["Premiere"],
+            "assistant":true,
+            "genre":["feature","short","music","doco","tv","social"],
+            "title":"Flatten Multicam",
+            "description":"Flatten multicam clips, delete all sound & export xml.",
+            "parent":[11]
+        },
+        {
+            "id":14,
+            "stage":"post",
+            "substage":"handover",
+            "workflow":"freelance",
+            "platform":["FCPX"],
+            "assistant":true,
+            "genre":["feature","short","music","doco","tv","social"],
+            "title":"Colourist Handover",
+            "description":"Export FCPXML and also convert FCPXML to EDL with EDL-X.",
+            "parent":[12]
+        },
+        {
+            "id":15,
+            "stage":"post",
+            "substage":"handover",
+            "workflow":"freelance",
+            "platform":["FCPX"],
+            "assistant":true,
+            "genre":["feature","short","music","doco","tv","social"],
+            "title":"Logic Pro Handover",
+            "description":"Export FCPXML.",
+            "parent":[14]
+        },
+        {
+            "id":16,
+            "stage":"post",
+            "substage":"handover",
+            "workflow":"freelance",
+            "platform":["FCPX"],
+            "assistant":true,
+            "genre":["feature","short","music","doco","tv","social"],
+            "title":"Pro Tools Handover",
+            "description":"Export FCPXML and use X2Pro.",
+            "parent":[14]
+        },
+        {
+            "id":17,
+            "stage":"post",
+            "substage":"prep",
+            "workflow":"hsquared",
+            "platform":["Premiere"],
+            "assistant":true,
+            "genre":["social","tv"],
+            "title":"Wrangling",
+            "description":"Create folder according to show acronyms (e.g. GCBC11 or EG8) and shoot day (referring to shoot notes) e.g. GCBC11_ShootDay31, and create folder within for each camera and each recipe (e.g. GCBC11_ShootDay31_01_CamA). Copy media to server plus 2 local drives. ",
+            "parent":[]
+        },
+        {
+            "id":18,
+            "stage":"post",
+            "substage":"prep",
+            "workflow":"hsquared",
+            "platform":["Premiere"],
+            "assistant":true,
+            "genre":["social","tv"],
+            "title":"Sync",
+            "description":"Sync with Pluraleyes by media on local drive (sync from server might cause error). Import the resulting xml into premiere with name of recipie (e.g. GCBC11_ShootDay31_01_Chicken and Leek Pie.prproj) avoid symbols. Relink to server media and make 2 copies of the Premiere Project onto the 2 local drives.",
+            "parent":[17]
+        },
+        {
+            "id":19,
+            "stage":"post",
+            "substage":"prep",
+            "workflow":"hsquared",
+            "platform":["Premiere"],
+            "assistant":true,
+            "genre":["social","tv"],
+            "title":"Format Cards",
+            "description":"Note in shoot note that files is synced. Put card content in trash and empty trash. Put card in wrangle outbox.",
+            "parent":[18]
+        },
+        {
+            "id":20,
+            "stage":"post",
+            "substage":"cut",
+            "workflow":"hsquared",
+            "platform":["Premiere"],
+            "assistant":false,
+            "genre":["social"],
+            "title":"Review Edit",
+            "description":"Review with Jazz before export.",
+            "parent":[19]
+        },
+        {
+            "id":21,
+            "stage":"post",
+            "substage":"cut",
+            "workflow":"hsquared",
+            "platform":["Premiere"],
+            "assistant":false,
+            "genre":["social"],
+            "title":"Editing Projects",
+            "description":"Put editor's initials at the end of the shot project (e.g. GCBC11_Day31_02_Dish_KL.prproj.) Copy shot project onto desktop for editing, and move it back to server at the end of each day. Sequence naming convetion: GCBC11_Day31_02_Dish_KL_Edit01",
+            "parent":[20]
+        },
+        {
+            "id":22,
+            "stage":"post",
+            "substage":"cut",
+            "workflow":"hsquared",
+            "platform":["Premiere"],
+            "assistant":false,
+            "genre":["social"],
+            "title":"Vimeo Review",
+            "description":"Upload to Vimeo with password of the show acronym or 'Mission' or '10' for 10Daily",
+            "parent":[21]
+        },
+        {
+            "id":23,
+            "stage":"post",
+            "substage":"mastering",
+            "workflow":"hsquared",
+            "platform":["Premiere"],
+            "assistant":true,
+            "genre":["social","tv"],
+            "title":"Mastering",
+            "description":"Move all bins into Edit_Project Assets bin, duplicate sequence into project root with naming format GCBC11_Day31_02_Dish_MASTER.prproj",
+            "parent":[22]
+        },
+        {
+            "id":24,
+            "stage":"post",
+            "substage":"mastering",
+            "workflow":"hsquared",
+            "platform":["Premiere"],
+            "assistant":true,
+            "genre":["tv"],
+            "title":"International Mastering",
+            "description":"Remove all product B-cam shots, remove verbal mentions, remove advertising segments. Check slate, slate timing. Create textless segments at the end of the sequence, without bars and tones, with at least 2 seconds gap between textless clips, and with handles until next/previous cut.",
+            "parent":[22]
+        },
+        {
+            "id":25,
+            "stage":"post",
+            "substage":"mastering",
+            "workflow":"hsquared",
+            "platform":["Premiere"],
+            "assistant":true,
+            "genre":["tv"],
+            "title":"Extra test data",
+            "description":"Remove all product B-cam shots, remove verbal mentions, remove advertising segments. Check slate, slate timing. Create textless segments at the end of the sequence, without bars and tones, with at least 2 seconds gap between textless clips, and with handles until next/previous cut.",
+            "parent":[22]
+        }
+    ]
+}
