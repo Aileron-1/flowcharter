@@ -4,80 +4,20 @@
 <head>
 	<meta charset="utf-8">
 	<title>Flowchart4</title>
-	<!--<link rel="stylesheet" href="style.css">-->
+	<link rel="stylesheet" href="style.css">
     <script
     src="https://code.jquery.com/jquery-3.3.1.min.js"
     integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
     crossorigin="anonymous"></script>
-    
-	<style>
-		#flowchart {background:hsla(165,10%,80%,100%);
-			position: relative;
-		    width: 1800px;
-			box-shadow: 1px 1px 5px grey;
-		}
-		#chart-canvas {
-			position: absolute;
-		    top: 0;
-		    left: 0;
-		}
-		#activity-wrapper {
-			display: flex;
-			flex-flow: row wrap;
-			justify-content: space-around;
-			align-items: stretch;
-		}
-		.flowchart-activity {
-			display: flex;
-			flex-flow: column wrap;
-			flex-grow: 1;
-			justify-content: center;
-			align-items: center;
-			max-width: 600px;
-		}
-		.flowchart-activity-children {
-			display: flex;
-			flex-flow: row;
-		}
-		.flowchart-activity-info {
-			background: white;
-			box-shadow: 1px 1px 5px grey;
-			border-radius: 3px;
-			z-index: 1;
-			display: block;
-			max-width: 300px;
-			padding: 20px;
-			margin: 20px;
-			font-family: 'Arial';
-			font-size: 11px;
-		}
-		.flowchart-activity-info h2 {
-			margin-top: 0px;
-			margin-bottom: 10px;
-		}
-		.flowchart-activity-info ul {
-			margin: 0;
-			padding: 0;
-			list-style: none;
-		}
-		.flowchart-activity-info li {
-			margin: 3px;
-		}
-		.flowchart-label {
-			font-weight: bold;
-		}
-		.multiple {
-			flex-flow: row wrap;
-			width: 30%;
-		}
-	</style>
 </head>
 
 <body>
 	<div id="test"></div>
     <h1>Flowchart 4</h1>
-    <button id="testbutton">Test</button>
     <div id="flowchart">
+    	<div id="flowchart-toolbar">
+		    <button id="testbutton">Test</button>
+    	</div>
 		<canvas id="chart-canvas" width="1200" height="1200"></canvas>
 		<div id="activity-wrapper"></div>
     </div>

@@ -4,7 +4,7 @@
 var flowchartSettings = {
     dataAttributeOrder: ["stage","substage","workflow","platform","assistant","genre","description"],  // Property names you want to display
     dataAttributeLabels: ["Stage","Substage","Workflow","Platform","Assistant","Genre","Description"],  // The text displayed with each property
-    dataTitleKey: "title"
+    dataTitleKey: "title"  // Key in object for use as title 
 }
 var input = inputData();  // Expects an array of objects that has the properties listed in the settings above.
 var activities = [];
@@ -178,10 +178,10 @@ function createActivityDiv(id) {
         div = activities[activity.parents[0]].div.children('.flowchart-activity-children');
     }
     console.log(id+': '+activity.children.length)
-    if (activity.children.length > 1) {
-        $('.flowchart-activity:last').addClass('multiple');
-    }
     div.append(activityDiv);
+    if (activity.children.length > 1) {
+        $('.flowchart-activity-children:last').addClass('multiple');
+    }
     activity.div = $('.flowchart-activity:last');
     
     //$('.flowchart-activity:last').css('order', id);
@@ -198,7 +198,7 @@ $(document).ready(function () {
 });
 
 $('#testbutton').click(function() {
-    $('#test').append('<p>Testsa</p>')
+    $('#test').append('<p>Test</p>')
 });
 
 // Update each activity's height based on internal elements
@@ -237,9 +237,9 @@ function updateDraw (created) {
         let to = activities[relationship.to];
         
         relationship.x1 = from.x + from.width/2 + 20;
-        relationship.y1 = from.y + from.height + 20;
+        relationship.y1 = from.y + from.height + 20 - 4;
         relationship.x2 = to.x + to.width/2 + 20;
-        relationship.y2 = to.y + 20;
+        relationship.y2 = to.y + 20 - 4;
         
         ctx.lineWidth = 2.0;
         ctx.beginPath();
@@ -277,6 +277,7 @@ function moveElementTo (element, x, y, duration) {
 function inputData() {
     var data=[
         {
+			"id":0,
             "stage":"post",
             "substage":"prep",
             "workflow":"Smash",
@@ -288,6 +289,7 @@ function inputData() {
             "parent":[]
         },
         {
+			"id":1,
             "stage":"post",
             "substage":"prep",
             "workflow":["Smash","freelance"],
@@ -299,6 +301,7 @@ function inputData() {
             "parent":[0]
         },
         {
+			"id":2,
             "stage":"post",
             "substage":"prep",
             "workflow":["Smash","freelance"],
@@ -310,6 +313,7 @@ function inputData() {
             "parent":[1]
         },
         {
+			"id":3,
             "stage":"post",
             "substage":"prep",
             "workflow":["freelance"],
@@ -321,6 +325,7 @@ function inputData() {
             "parent":[1]
         },
         {
+			"id":4,
             "stage":"post",
             "substage":"prep",
             "workflow":"Smash",
@@ -332,6 +337,7 @@ function inputData() {
             "parent":[2]
         },
         {
+			"id":5,
             "stage":"post",
             "substage":"prep",
             "workflow":"Smash",
@@ -343,6 +349,7 @@ function inputData() {
             "parent":[3]
         },
         {
+			"id":6,
             "stage":"post",
             "substage":"prep",
             "workflow":"freelance",
@@ -354,6 +361,7 @@ function inputData() {
             "parent":[4,5]
         },
         {
+			"id":7,
             "stage":"post",
             "substage":"prep",
             "workflow":"freelance",
@@ -365,6 +373,7 @@ function inputData() {
             "parent":[6]
         },
         {
+			"id":8,
             "stage":"post",
             "substage":"cut",
             "workflow":"freelance",
@@ -376,6 +385,7 @@ function inputData() {
             "parent":[7]
         },
         {
+			"id":9,
             "stage":"post",
             "substage":"cut",
             "workflow":"freelance",
@@ -387,6 +397,7 @@ function inputData() {
             "parent":[8]
         },
         {
+			"id":10,
             "stage":"post",
             "substage":"handover",
             "workflow":"freelance",
@@ -398,6 +409,7 @@ function inputData() {
             "parent":[9]  // this is 10
         },
         {
+			"id":11,
             "stage":"post",
             "substage":"handover",
             "workflow":"freelance",
@@ -409,6 +421,7 @@ function inputData() {
             "parent":[10]
         },
         {
+			"id":12,
             "stage":"post",
             "substage":"handover",
             "workflow":"freelance",
@@ -420,6 +433,7 @@ function inputData() {
             "parent":[10]
         },
         {
+			"id":13,
             "stage":"post",
             "substage":"handover",
             "workflow":"freelance",
@@ -431,6 +445,7 @@ function inputData() {
             "parent":[11]
         },
         {
+			"id":14,
             "stage":"post",
             "substage":"handover",
             "workflow":"freelance",
@@ -442,6 +457,7 @@ function inputData() {
             "parent":[12]
         },
         {
+			"id":15,
             "stage":"post",
             "substage":"handover",
             "workflow":"freelance",
@@ -453,6 +469,7 @@ function inputData() {
             "parent":[14]
         },
         {
+			"id":16,
             "stage":"post",
             "substage":"handover",
             "workflow":"freelance",
@@ -464,6 +481,7 @@ function inputData() {
             "parent":[14]
         },
         {
+			"id":17,
             "stage":"post",
             "substage":"prep",
             "workflow":"hsquared",
@@ -475,6 +493,7 @@ function inputData() {
             "parent":[]
         },
         {
+			"id":18,
             "stage":"post",
             "substage":"prep",
             "workflow":"hsquared",
@@ -486,6 +505,7 @@ function inputData() {
             "parent":[17]
         },
         {
+			"id":19,
             "stage":"post",
             "substage":"prep",
             "workflow":"hsquared",
@@ -497,6 +517,7 @@ function inputData() {
             "parent":[18]
         },
         {
+			"id":20,
             "stage":"post",
             "substage":"cut",
             "workflow":"hsquared",
@@ -508,6 +529,7 @@ function inputData() {
             "parent":[19]
         },
         {
+			"id":21,
             "stage":"post",
             "substage":"cut",
             "workflow":"hsquared",
@@ -519,6 +541,7 @@ function inputData() {
             "parent":[20]
         },
         {
+			"id":22,
             "stage":"post",
             "substage":"cut",
             "workflow":"hsquared",
@@ -530,6 +553,7 @@ function inputData() {
             "parent":[21]
         },
         {
+			"id":23,
             "stage":"post",
             "substage":"mastering",
             "workflow":"hsquared",
@@ -541,6 +565,7 @@ function inputData() {
             "parent":[22]
         },
         {
+			"id":24,
             "stage":"post",
             "substage":"mastering",
             "workflow":"hsquared",
@@ -550,7 +575,19 @@ function inputData() {
             "title":"International Mastering",
             "description":"Remove all product B-cam shots, remove verbal mentions, remove advertising segments. Check slate, slate timing. Create textless segments at the end of the sequence, without bars and tones, with at least 2 seconds gap between textless clips, and with handles until next/previous cut.",
             "parent":[22]
-        } //25th
+        }, //25th
+		{
+			"id":25,
+            "stage":"post",
+            "substage":"mastering",
+            "workflow":"hsquared",
+            "platform":["Premiere"],
+            "assistant":true,
+            "genre":["tv"],
+            "title":"FASDASDASFAFASDFAXCZXCXFA",
+            "description":"Remove all product B-cam shots, remove verbal mentions, remove advertising segments. Check slate, slate timing. Create textless segments at the end of the sequence, without bars and tones, with at least 2 seconds gap between textless clips, and with handles until next/previous cut.",
+            "parent":[22]
+        },
         
     ];
     return data;
