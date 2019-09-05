@@ -30,13 +30,11 @@ $('#testbutton').click(function() {
 
 
 // Find children and add them to the respective parent activities.
-for (var i = 0; i < objects.length; i++) {
-    objects[i].children = [];
-}
 for (var i=0; i<objects.length; i++) {
-    var current = objects[i]
+    var current = objects[i];
+    current.children = [];
     for (var o=0; o<current.parent.length; o++) {
-        objects[current.parent[o]].children.push(i);
+        objects[current.parent[o]].children.push(current.id);
     }
 }
 
@@ -50,7 +48,7 @@ for (let i=0; i<objects.length; i++) {
     activity.width = 0;
     activity.height = 0;
     activity.div = '';
-    activity.id = i;//idIndex;
+    activity.id = data['id'];//idIndex;
     activity.title = data[flowchartSettings.dataTitleKey];
     activity.parents = data['parent'];
     activity.children = data['children'];
@@ -86,16 +84,18 @@ var created = [];
 for (let i=0; i<activities.length; i++) {
     let activity = activities[i];
     if (activity.parents.length == 0) {
-        createDivAndCheckChild(i);
+        console.log(activity.id)
+        createDivAndCheckChild(activity.id);
     }
 }
 
 // Create an element and check if it should keep going
 function createDivAndCheckChild (id) {
     if (created.includes(id) == false) {
-        let activity = activities[id];
+        let activity = activities[getIndex(activities, id)];
         createActivityDiv(id);
         for (let i=0; i<activity.children.length; i++) {
+            console.log(activity)
             createDivAndCheckChild(activity.children[i]);
         }
     }
@@ -104,7 +104,7 @@ function createDivAndCheckChild (id) {
 
 // Create a DOM element based on an activity object
 function createActivityDiv(id) {
-    let activity = activities[id];
+    let activity = activities[getIndex(activities, id)];
     let div = $('#activity-wrapper');
     let activityDiv = '';
     activityDiv += '<div class="flowchart-activity"><div class="flowchart-activity-info">';
@@ -120,9 +120,8 @@ function createActivityDiv(id) {
     activityDiv += '</div>';
 
     if (activity.parents.length > 0) {
-        div = activities[activity.parents[0]].div.children('.flowchart-activity-children');
+        div = activities[getIndex(activities, activity.parents[0])].div.children('.flowchart-activity-children');
     }
-    console.log(id+': '+activity.children.length)
     div.append(activityDiv);
     if (activity.children.length > 1) {
         $('.flowchart-activity-children:last').addClass('multiple');
@@ -130,7 +129,18 @@ function createActivityDiv(id) {
     activity.div = $('.flowchart-activity:last');
 }
 
+// Return an index by object ID
+function getIndex (listToSearch, idToFind) {
+    let result = null;
+    for (let i=0; i<listToSearch.length; i++) {
+        if (listToSearch[i].id == idToFind) {
+            result = i;listToSearch[i].id
+        }
+    }
+    return result;
+}
 
+/*
 // Takes a tag and 
 // Returns a list of object IDs 
 function searchTag () {
@@ -141,7 +151,7 @@ function searchTag () {
 // Turns them into Hidden and 
 function filterObject () {
 
-}
+}*/
 
 
 // Update each activity's height based on internal elements and draw them
@@ -152,7 +162,7 @@ function updateDraw (created) {
     
     // Update and draw each activity and relationship's position
     for (let i=0; i<created.length; i++) {
-        let activity = activities[created[i]];
+        let activity = activities[getIndex(activities, created[i])];
         let divToPointTo = activity.div.children('.flowchart-activity-info');
         let activityPos = divToPointTo.position();
         
@@ -165,8 +175,8 @@ function updateDraw (created) {
     
     for (let i=0; i<relationships.length; i++) {
         let relationship = relationships[i];
-        let from = activities[relationship.from];
-        let to = activities[relationship.to];
+        let from = activities[getIndex(activities, relationship.from)];
+        let to = activities[getIndex(activities, relationship.to)];
         
         relationship.x1 = from.x + from.width/2 + 20;
         relationship.y1 = from.y + from.height + 20 - 4;
