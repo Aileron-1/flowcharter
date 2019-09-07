@@ -34,7 +34,7 @@ for (var i=0; i<objects.length; i++) {
     var current = objects[i];
     current.children = [];
     for (var o=0; o<current.parent.length; o++) {
-        objects[current.parent[o]].children.push(current.id);
+        objects[getIndex(objects, current.parent[o])].children.push(current.id);
     }
 }
 
@@ -443,7 +443,7 @@ function inputData() {
             "title":"Sync",
             "description":"Sync with Pluraleyes by media on local drive (sync from server might cause error). Import the resulting xml into premiere with name of recipie (e.g. GCBC11_ShootDay31_01_Chicken and Leek Pie.prproj) avoid symbols. Relink to server media and make 2 copies of the Premiere Project onto the 2 local drives.",
             "parent":[17]
-        },
+        },/*
         {
             "id":19,
             "stage":"post",
@@ -455,7 +455,7 @@ function inputData() {
             "title":"Format Cards",
             "description":"Note in shoot note that files is synced. Put card content in trash and empty trash. Put card in wrangle outbox.",
             "parent":[18]
-        },
+        },*/
         {
             "id":20,
             "stage":"post",
@@ -466,7 +466,7 @@ function inputData() {
             "genre":["social"],
             "title":"Review Edit",
             "description":"Review with Jazz before export.",
-            "parent":[19]
+            "parent":[18]
         },
         {
             "id":21,
